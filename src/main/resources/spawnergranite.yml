@@ -1,0 +1,22 @@
+# Remember: the file name is the one with which the block will be registered and will be used with /blockspawners give
+# DisplayName: Visible name of the Block, supports Color Code Formats
+DisplayName: "&3Granite Spawner"
+#Material: All in capital letters, corresponding to "https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html"
+Material: GRANITE
+#SpawnTicks: 20 ticks = 1 second // 200 = 10 seconds. Count how many seconds you want and multiply X 20
+SpawnTicks: 200
+# Example Ussage
+#lore:
+#  - "Line1"
+#  - "&aLine2"
+#  - "&4&lLine3"
+#  - "etc"
+lore:
+  - "&6Spawns Granite, Diorite"
+  - "&6and Andesite"
+# List of materials that your Spawner will generate
+# Again, corresponding to "https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html"
+SpawningMaterials:
+  - ANDESITE
+  - DIORITE
+  - GRANITE

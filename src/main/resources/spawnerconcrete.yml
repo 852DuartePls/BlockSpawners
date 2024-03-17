@@ -1,0 +1,34 @@
+# Remember: the file name is the one with which the block will be registered and will be used with /blockspawners give
+# DisplayName: Visible name of the Block, supports Color Code Formats
+DisplayName: "&cConcrete Spawner"
+#Material: All in capital letters, corresponding to "https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html"
+Material: GRAY_CONCRETE
+#SpawnTicks: 20 ticks = 1 second // 200 = 10 seconds. Count how many seconds you want and multiply X 20
+SpawnTicks: 200
+# Example Ussage
+#lore:
+#  - "Line1"
+#  - "&aLine2"
+#  - "&4&lLine3"
+#  - "etc"
+lore:
+  - "&cSpawns all Concrete colors"
+# List of materials that your Spawner will generate
+# Again, corresponding to "https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html"
+SpawningMaterials:
+  - BLACK_CONCRETE
+  - RED_CONCRETE
+  - GREEN_CONCRETE
+  - BROWN_CONCRETE
+  - BLUE_CONCRETE
+  - PURPLE_CONCRETE
+  - CYAN_CONCRETE
+  - LIGHT_GRAY_CONCRETE
+  - GRAY_CONCRETE
+  - PINK_CONCRETE
+  - LIME_CONCRETE
+  - YELLOW_CONCRETE
+  - LIGHT_BLUE_CONCRETE
+  - MAGENTA_CONCRETE
+  - ORANGE_CONCRETE
+  - WHITE_CONCRETE
