@@ -30,7 +30,7 @@ public class BlockSpawnerEvents implements Listener {
     public BlockSpawnerEvents(JavaPlugin plugin, SpawnerManager spawnerManager) {
         this.plugin = plugin;
         this.spawnerManager = spawnerManager;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin); // Registra los eventos en el plugin
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.particleTasks = new HashMap<>();
         this.spawningTasks = new HashMap<>();
     }
@@ -48,15 +48,14 @@ public class BlockSpawnerEvents implements Listener {
                 SpawnerBlock spawnerBlock = getSpawnerBlockByDisplayName(displayName);
                 if (spawnerBlock != null) {
                     Location blockLocation = event.getBlock().getLocation();
-                    ParticleTask particleTask = new ParticleTask(blockLocation); // Crear una nueva instancia de ParticleTask
-                    particleTask.particleStart(); // Iniciar la tarea de partículas
+                    ParticleTask particleTask = new ParticleTask(blockLocation);
+                    particleTask.particleStart(); 
                     particleTasks.put(blockLocation, particleTask);
 
-                    // Start the spawning task if spawnTicks is greater than 0
                     int spawnTicks = spawnerBlock.getSpawnTicks();
                     if (spawnTicks > 0) {
-                        SpawningTask spawningTask = new SpawningTask(spawnerBlock, event.getBlock()); // Crear una nueva instancia de SpawningTask
-                        spawningTask.startTask(); // Iniciar la tarea de spawneo
+                        SpawningTask spawningTask = new SpawningTask(spawnerBlock, event.getBlock()); 
+                        spawningTask.startTask(); 
                         spawningTasks.put(blockLocation, spawningTask);
                     }
 
@@ -80,12 +79,11 @@ public class BlockSpawnerEvents implements Listener {
 
             SpawningTask spawningTask = spawningTasks.remove(location);
             if (spawningTask != null) {
-                spawningTask.cancel(); // Cancelar la tarea de spawneo al romper el bloque
+                spawningTask.cancel(); 
             }
 
             Player player = event.getPlayer();
             if (player.getGameMode() == GameMode.SURVIVAL) {
-                // Droppear el item al romper el bloque solo si el jugador está en Survival
                 SpawnerBlock spawnerBlock = getSpawnerBlockByLocation(location);
                 if (spawnerBlock != null) {
                     ItemStack spawnerItem = new ItemStack(block.getType());
@@ -96,7 +94,6 @@ public class BlockSpawnerEvents implements Listener {
                         itemMeta.addEnchant(Enchantment.DURABILITY, 10, true);
                         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                         spawnerItem.setItemMeta(itemMeta);
-                        // Hacer el nombre del bloque visible en el suelo
                         Item droppedItem = player.getWorld().dropItemNaturally(location.add(0.5, 0.5, 0.5), spawnerItem);
                         droppedItem.setCustomName(spawnerBlock.getFormattedDisplayName());
                         droppedItem.setCustomNameVisible(true);
@@ -137,7 +134,6 @@ public class BlockSpawnerEvents implements Listener {
                     if (updatedItemMeta != null) {
                         updatedItemMeta.setLore(spawnerBlock.getFormattedLore());
                         item.setItemMeta(updatedItemMeta);
-                        // Hacer el nombre del bloque visible en el suelo
                         event.getItemDrop().setCustomName(spawnerBlock.getFormattedDisplayName());
                         event.getItemDrop().setCustomNameVisible(true);
                     }
