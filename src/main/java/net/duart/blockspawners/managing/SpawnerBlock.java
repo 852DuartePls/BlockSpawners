@@ -44,22 +44,20 @@ public class SpawnerBlock {
         this.fileName = fileName;
         this.displayName = (displayName == null || displayName.isEmpty()) ? "Unnamed Block" : displayName;
         this.material = material;
-        this.lore = (lore == null) ? new ArrayList<>() : new ArrayList<>(lore); // Copiar la lista para evitar modificaciones externas
+        this.lore = (lore == null) ? new ArrayList<>() : new ArrayList<>(lore);
         this.plugin = plugin;
 
-        // Verificar si spawnTicks es nulo o negativo
         if (spawnTicks == null || spawnTicks <= 0) {
-            this.spawnTicks = 200; // Valor por defecto 200 si spawnTicks es nulo o 0
+            this.spawnTicks = 200;
         } else {
             this.spawnTicks = spawnTicks;
         }
 
-        // Verificar si spawningMaterials es nulo
         if (spawningMaterials == null) {
             this.spawningMaterials = new ArrayList<>();
-            this.spawningMaterials.add(Material.COBBLESTONE); // Agregar cobblestone como material por defecto si spawningMaterials es null
+            this.spawningMaterials.add(Material.COBBLESTONE);
         } else {
-            this.spawningMaterials = new ArrayList<>(spawningMaterials); // Copiar la lista para evitar modificaciones externas
+            this.spawningMaterials = new ArrayList<>(spawningMaterials);
         }
 
     }
