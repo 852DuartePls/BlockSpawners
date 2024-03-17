@@ -40,7 +40,7 @@ public class SpawningTask extends BukkitRunnable {
 
         Material randomMaterial = spawningMaterials.get(random.nextInt(spawningMaterials.size()));
         ItemStack itemStack = new ItemStack(randomMaterial);
-        Location dropLocation = spawnerBlockLocation.getLocation().add(0.5, 0.5, 0.5); // Colocar el item en el centro superior del bloque
+        Location dropLocation = spawnerBlockLocation.getLocation().add(0.5, 0.5, 0.5);
         Item spawnedItem = dropLocation.getWorld().dropItemNaturally(dropLocation, itemStack);
         spawnedItem.setCustomName(spawnerBlock.getFormattedDisplayName());
         spawnedItem.setCustomNameVisible(false);
