@@ -1,0 +1,33 @@
+concretespawner:
+  Material: PINK_CONCRETE
+  DisplayName: "<light_purple>◆</light_purple> <color:#8d36ff>Concrete Spawner</color> <light_purple>◆</light_purple>"
+  Lore:
+    - " "
+    - "<color:#7d8eff><b>||</b> This Spawner generates</color>"
+    - "<color:#7d8eff>every single <gradient:#FF0000:#FF7F00>Co</gradient><gradient:#FF7F00:#FFFF00>ncr</gradient><gradient:#FFFF00:#00FF00>et</gradient><gradient:#00FF00:#0000FF>e </gradient><gradient:#0000FF:#4B0082>Blo</gradient><gradient:#4B0082:#9400D3>ck</gradient> <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - WHITE_CONCRETE
+    - ORANGE_CONCRETE
+    - MAGENTA_CONCRETE
+    - LIGHT_BLUE_CONCRETE
+    - YELLOW_CONCRETE
+    - LIME_CONCRETE
+    - PINK_CONCRETE
+    - GRAY_CONCRETE
+    - LIGHT_GRAY_CONCRETE
+    - CYAN_CONCRETE
+    - PURPLE_CONCRETE
+    - BLUE_CONCRETE
+    - BROWN_CONCRETE
+    - GREEN_CONCRETE
+    - RED_CONCRETE
+    - BLACK_CONCRETE

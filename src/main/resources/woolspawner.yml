@@ -1,0 +1,33 @@
+woolspawner:
+  Material: PINK_WOOL
+  DisplayName: "<color:#8769ff><white>◆</white> Wool Spawner</color> <white>◆</white>"
+  Lore:
+    - " "
+    - "<color:#e366ff><b>||</b> This spawner generates</color>"
+    - "<color:#e366ff>every single <gradient:#FF0000:#FF7F00>Wo</gradient><gradient:#FF7F00:#FFFF00>ol</gradient><gradient:#FFFF00:#00FF00> C</gradient><gradient:#00FF00:#0000FF>o</gradient><gradient:#0000FF:#4B0082>lo</gradient><gradient:#4B0082:#9400D3>r</gradient> <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - WHITE_WOOL
+    - ORANGE_WOOL
+    - MAGENTA_WOOL
+    - LIGHT_BLUE_WOOL
+    - YELLOW_WOOL
+    - LIME_WOOL
+    - PINK_WOOL
+    - GRAY_WOOL
+    - LIGHT_GRAY_WOOL
+    - CYAN_WOOL
+    - PURPLE_WOOL
+    - BLUE_WOOL
+    - BROWN_WOOL
+    - GREEN_WOOL
+    - RED_WOOL
+    - BLACK_WOOL

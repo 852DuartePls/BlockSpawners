@@ -1,0 +1,25 @@
+woodspawner:
+  Material: OAK_LOG
+  DisplayName: "<yellow>◆</yellow> <color:#ffa54f>Wood Spawner</color> <yellow>◆</yellow>"
+  Lore:
+    - " "
+    - "<color:#1cff6f><b>||</b> This spawner generates</color>"
+    - "<color:#1cff6f>every single Wood Block <b>||</b></color> "
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - OAK_LOG
+    - SPRUCE_LOG
+    - BIRCH_LOG
+    - JUNGLE_LOG
+    - ACACIA_LOG
+    - DARK_OAK_LOG
+    - CRIMSON_STEM
+    - WARPED_STEM

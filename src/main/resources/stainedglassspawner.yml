@@ -1,0 +1,31 @@
+stainedglassspawner:
+  Material: PINK_STAINED_GLASS
+  DisplayName: "<gold>◆ <color:#ff6675>Stained Glass Spawner</color> ◆</gold>"
+  Lore:
+    - " "
+    - "<color:#ff148a><b>||</b> This spawner generates </color>"
+    - "<color:#ff148a>every single <gradient:#FF0000:#FF7F00>St</gradient><gradient:#FF7F00:#FFFF00>ai</gradient><gradient:#FFFF00:#00FF00>ned</gradient><gradient:#00FF00:#0000FF> G</gradient><gradient:#0000FF:#4B0082>la</gradient><gradient:#4B0082:#9400D3>ss</gradient> <b>||</b></color>"
+  Enchantments:
+    unbreaking: 2
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+  SpawnTicks: 20
+  SpawningMaterials:
+    - WHITE_STAINED_GLASS
+    - ORANGE_STAINED_GLASS
+    - MAGENTA_STAINED_GLASS
+    - LIGHT_BLUE_STAINED_GLASS
+    - YELLOW_STAINED_GLASS
+    - LIME_STAINED_GLASS
+    - PINK_STAINED_GLASS
+    - GRAY_STAINED_GLASS
+    - LIGHT_GRAY_STAINED_GLASS
+    - CYAN_STAINED_GLASS
+    - PURPLE_STAINED_GLASS
+    - BLUE_STAINED_GLASS
+    - BROWN_STAINED_GLASS
+    - GREEN_STAINED_GLASS
+    - RED_STAINED_GLASS
+    - BLACK_STAINED_GLASS
