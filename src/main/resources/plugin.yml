@@ -1,18 +1,11 @@
 name: BlockSpawners
-version: 1.0
-main: net.duart.blockspawners.BlockSpawners
-api-version: 1.20
-author: DaveDuart
-
-description: A plugin that allows players to obtain BlockSpawners, spawners that spawn blocks.
+version: '0.0.1'
+main: me.duart.blockSpawners.BlockSpawners
+api-version: '1.21'
+authors: [ DaveDuart ]
+description: Simple Block Spawners
 
 commands:
   blockspawners:
-    description: Control block spawners
-    usage: /blockspawner give <block> [player]
-    aliases: [bspawner]
-    permission: blockspawners.use
-  blockspawner-reload:
-    description: Reload block spawners
-    usage: /blockspawner reload
-    permission: blockspawners.reload
+    description: Block Spawners Commands
+    aliases: [ bs ]
