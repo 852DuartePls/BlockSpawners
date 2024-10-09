@@ -7,7 +7,9 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class ParticleTasks extends BukkitRunnable {
 
     private static final int TICKS_PER_SECOND = 20;

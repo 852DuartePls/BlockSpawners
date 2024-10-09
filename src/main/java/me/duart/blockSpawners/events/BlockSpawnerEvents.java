@@ -1,13 +1,14 @@
 package me.duart.blockSpawners.events;
 
 import me.duart.blockSpawners.BlockSpawners;
+import me.duart.blockSpawners.manager.DataStorage;
 import me.duart.blockSpawners.manager.LoadBlockSpawners;
+import me.duart.blockSpawners.manager.SQLiteDataStorage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,36 +18,26 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NullMarked;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+@NullMarked
 public class BlockSpawnerEvents implements Listener {
     private final BlockSpawners plugin;
     private final LoadBlockSpawners loadBlockSpawners;
     private final Map<Location, ItemStack> placedSpawners = new ConcurrentHashMap<>();
     private final Map<Location, ParticleTasks> particleTasksMap = new ConcurrentHashMap<>();
     private final Map<Location, SpawningTask> spawningTasksMap = new ConcurrentHashMap<>();
-    private final File dataFile;
-    private final Object fileLock = new Object();
+    private final DataStorage dataStorage;
 
     public BlockSpawnerEvents(BlockSpawners plugin, LoadBlockSpawners loadBlockSpawners) {
         this.plugin = plugin;
         this.loadBlockSpawners = loadBlockSpawners;
-
-        File dataDir = new File(plugin.getDataFolder(), "data");
-        if (!dataDir.exists()) {
-            boolean dirCreated = dataDir.mkdirs();
-            if (!dirCreated) {
-                plugin.getLogger().warning("Failed to create the 'data' folder.");
-            }
-        }
-
-        this.dataFile = new File(dataDir, "spawners.yml");
+        this.dataStorage = new SQLiteDataStorage(plugin, loadBlockSpawners);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -96,10 +87,21 @@ public class BlockSpawnerEvents implements Listener {
         if (particleTasks != null) particleTasks.particleStop();
         if (spawningTask != null) spawningTask.stopTask();
 
-        synchronized (placedSpawners) { originalSpawnerItem = placedSpawners.remove(location); }
+        synchronized (placedSpawners) {
+            originalSpawnerItem = placedSpawners.remove(location);
+        }
         if (originalSpawnerItem == null) return;
 
+        CompletableFuture.runAsync(() -> {
+            try {
+                dataStorage.removeSpawnerData(location);
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Error removing spawner data: " + e.getMessage());
+            }
+        });
+
         saveSpawnersToFile();
+
         Player player = event.getPlayer();
         ItemStack droppedItemStack = originalSpawnerItem.clone();
 
@@ -116,93 +118,36 @@ public class BlockSpawnerEvents implements Listener {
 
     private void saveSpawnersToFile() {
         CompletableFuture.runAsync(() -> {
-            synchronized (fileLock) {
-                YamlConfiguration config = new YamlConfiguration();
-
-                for (Map.Entry<Location, ItemStack> entry : placedSpawners.entrySet()) {
-                    Location loc = entry.getKey();
-                    ItemStack item = entry.getValue();
-                    String path = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "." + loc.getBlockZ();
-
-                    config.set(path + ".block", serializeItemStack(item));
-                    String itemKey = loadBlockSpawners.getItemKeyFromSpawnerItem(item);
-                    if (itemKey != null) {
-                        config.set(path + ".itemKey", itemKey);
-                    }
-                }
-
-                try {
-                    config.save(dataFile);
-                } catch (IOException e) {
-                    plugin.getLogger().severe("Could not save spawners to file: " + e.getMessage());
-                }
+            try {
+                dataStorage.saveSpawnerData(placedSpawners);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         });
     }
 
-    private String serializeItemStack(ItemStack item) {
-        return Base64.getEncoder().encodeToString(item.serializeAsBytes());
-    }
-
     public void loadSpawnersFromFile() {
-        if (!dataFile.exists()) return;
+        CompletableFuture.runAsync(() -> {
+            try {
+                placedSpawners.putAll(dataStorage.loadSpawnerData());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
 
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(dataFile);
-
-        for (String world : config.getKeys(false)) {
-            if (!config.isConfigurationSection(world)) continue;
-
-            var xSection = config.getConfigurationSection(world);
-            if (xSection == null) continue;
-
-            for (String x : xSection.getKeys(false)) {
-                if (!xSection.isConfigurationSection(x)) continue;
-                var ySection = xSection.getConfigurationSection(x);
-                if (ySection == null) continue;
-
-                for (String y : ySection.getKeys(false)) {
-                    if (!ySection.isConfigurationSection(y)) continue;
-                    var zSection = ySection.getConfigurationSection(y);
-                    if (zSection == null) continue;
-
-                    for (String z : zSection.getKeys(false)) {
-                        String key = world + "." + x + "." + y + "." + z;
-                        String itemData = zSection.getString(z + ".block");
-                        String itemKey = zSection.getString(z + ".itemKey");
-                        Location location = deserializeLocation(key);
-                        if (location != null && itemData != null && itemKey != null) {
-                            ItemStack item = deserializeItemStack(itemData);
-                            placedSpawners.put(location, item);
-                            ParticleTasks particleTasks = new ParticleTasks(location);
-                            particleTasks.particleStart();
-                            particleTasksMap.put(location, particleTasks);
-                            SpawningTask spawningTask = new SpawningTask(loadBlockSpawners, location.getBlock(), itemKey);
-                            spawningTask.startTask();
-                            spawningTasksMap.put(location, spawningTask);
-                        }
-                    }
+            for (Map.Entry<Location, ItemStack> entry : placedSpawners.entrySet()) {
+                Location location = entry.getKey();
+                ItemStack item = entry.getValue();
+                ParticleTasks particleTasks = new ParticleTasks(location);
+                particleTasks.particleStart();
+                particleTasksMap.put(location, particleTasks);
+                String itemKey = loadBlockSpawners.getItemKeyFromSpawnerItem(item);
+                if (itemKey != null) {
+                    SpawningTask spawningTask = new SpawningTask(loadBlockSpawners, location.getBlock(), itemKey);
+                    spawningTask.startTask();
+                    spawningTasksMap.put(location, spawningTask);
                 }
             }
-        }
-    }
-
-    private Location deserializeLocation(String path) {
-        String[] parts = path.split("\\.");
-        if (parts.length != 4) {
-            plugin.getLogger().warning("Invalid location data: " + path);
-            return null;
-        }
-        String worldName = parts[0];
-        int x = Integer.parseInt(parts[1]);
-        int y = Integer.parseInt(parts[2]);
-        int z = Integer.parseInt(parts[3]);
-
-        return new Location(Bukkit.getWorld(worldName), x, y, z);
-    }
-
-    private ItemStack deserializeItemStack(String data) {
-        byte[] bytes = Base64.getDecoder().decode(data);
-        return ItemStack.deserializeBytes(bytes);
+        });
     }
 
     public CompletableFuture<Void> stopAllTasks() {

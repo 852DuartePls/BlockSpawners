@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class LoadBlockSpawners {
     private final Map<String, List<Material>> spawningMaterialsMap = new HashMap<>();
     private final Map<String, Integer> spawnTicksMap = new HashMap<>();
 
-    public LoadBlockSpawners(JavaPlugin plugin) {
+    public LoadBlockSpawners(@NotNull JavaPlugin plugin) {
         this.plugin = plugin;
         this.items = new HashMap<>();
         this.spawnersFolder = new File(plugin.getDataFolder(), "spawners");
@@ -176,7 +177,7 @@ public class LoadBlockSpawners {
         return spawningMaterialsMap.getOrDefault(itemKey, new ArrayList<>());
     }
 
-    private void loadItemFromFile(File file) {
+    private void loadItemFromFile(@NotNull File file) {
         String itemKey = file.getName().replace(".yml", "");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
