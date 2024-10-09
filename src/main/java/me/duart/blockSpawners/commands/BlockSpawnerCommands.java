@@ -57,7 +57,7 @@ public class BlockSpawnerCommands implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            sender.sendMessage(mini.deserialize("<red>You must specify an item key!</red>"));
+            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red> You must specify an item key.</red>")));
             return false;
         }
 
@@ -71,13 +71,13 @@ public class BlockSpawnerCommands implements CommandExecutor, TabCompleter {
 
         ItemStack item = loadBlockSpawners.getItem(itemKey);
         if (item == null) {
-            sender.sendMessage(mini.deserialize("<red>Item not found: " + itemKey + "</red>"));
+            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red>Item not found: " + itemKey + "</red>")));
             return true;
         }
 
         targetPlayer.getInventory().addItem(item);
-        targetPlayer.sendMessage(mini.deserialize("<green>You have been given: " + itemKey + "</green>"));
-        sender.sendMessage(mini.deserialize("<green>Given " + itemKey + " to " + targetPlayer.getName() + "</green>"));
+        targetPlayer.sendMessage(announcerPrefix.append(mini.deserialize("<green>You have been given:<color:#864aff> " + itemKey + "</color>")));
+        sender.sendMessage(announcerPrefix.append(mini.deserialize("<green>Given<color:#864aff> " + itemKey + "</color> to " + targetPlayer.getName() + "</green>")));
         return true;
     }
 

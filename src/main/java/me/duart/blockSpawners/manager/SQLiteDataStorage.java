@@ -9,13 +9,14 @@ import me.duart.blockSpawners.BlockSpawners;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class SQLiteDataStorage implements DataStorage {
     private final BlockSpawners plugin;
     private final LoadBlockSpawners loadBlockSpawners;
     private final String databaseUrl;
 
-    public SQLiteDataStorage(BlockSpawners plugin, LoadBlockSpawners loadBlockSpawners) {
+    public SQLiteDataStorage(@NotNull BlockSpawners plugin, LoadBlockSpawners loadBlockSpawners) {
         this.plugin = plugin;
         this.loadBlockSpawners = loadBlockSpawners;
 
@@ -45,7 +46,7 @@ public class SQLiteDataStorage implements DataStorage {
     }
 
     @Override
-    public void saveSpawnerData(Map<Location, ItemStack> spawners) {
+    public void saveSpawnerData(@NotNull Map<Location, ItemStack> spawners) {
         String insertQuery = "INSERT OR REPLACE INTO spawners (world, x, y, z, item, item_key) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
@@ -69,7 +70,7 @@ public class SQLiteDataStorage implements DataStorage {
         }
     }
 
-    public void removeSpawnerData(Location location) throws SQLException {
+    public void removeSpawnerData(@NotNull Location location) throws SQLException {
         String deleteQuery = "DELETE FROM spawners WHERE world = ? AND x = ? AND y = ? AND z = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
@@ -107,11 +108,11 @@ public class SQLiteDataStorage implements DataStorage {
         return spawners;
     }
 
-    private byte[] serializeItemStack(ItemStack item) {
+    private byte[] serializeItemStack(@NotNull ItemStack item) {
         return item.serializeAsBytes();
     }
 
-    private ItemStack deserializeItemStack(byte[] data) {
+    private @NotNull ItemStack deserializeItemStack(byte[] data) {
         return ItemStack.deserializeBytes(data);
     }
 }

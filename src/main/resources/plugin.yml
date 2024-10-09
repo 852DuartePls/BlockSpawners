@@ -1,5 +1,5 @@
 name: BlockSpawners
-version: '0.0.1'
+version: '0.0.2'
 main: me.duart.blockSpawners.BlockSpawners
 api-version: '1.21'
 authors: [ DaveDuart ]
@@ -7,5 +7,5 @@ description: Simple Block Spawners
 
 commands:
   blockspawners:
-    description: Block Spawners Commands
+    description: BlockSpawners base Command
     aliases: [ bs ]
