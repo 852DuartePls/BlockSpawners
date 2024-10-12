@@ -1,5 +1,6 @@
 # User-specific stuff
 .idea/
+.gradle/
 
 *.iml
 *.ipr
@@ -7,8 +8,6 @@
 
 # IntelliJ
 out/
-# mpeltonen/sbt-idea plugin
-.idea_modules/
 
 # Compiled class file
 *.class
@@ -29,22 +28,6 @@ out/
 # Folder config file
 [Dd]esktop.ini
 
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-
-# Windows shortcuts
-*.lnk
-
-.gradle
-build/
-
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -53,8 +36,11 @@ gradle-app.setting
 
 **/build/
 
-# Common working directory
+# Server Test directory
 run/
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+# Prevent ignoring Gradle wrapper jar file since other .jar files are usually ignored
 !gradle-wrapper.jar
+
+# Text Editor files
+.phcode.json
