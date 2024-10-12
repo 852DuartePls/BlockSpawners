@@ -95,12 +95,12 @@ public class LoadBlockSpawners {
                 "prismarinespawner.yml", "quartzspawner.yml", "sandspawner.yml",
                 "sealanternspawner.yml", "terracottaspawner.yml"
         };
+
         for (String fileName : spawnerFiles) {
             File spawnerFile = new File(spawnersFolder, fileName);
             if (!spawnerFile.exists()) {
                 try (InputStream inputStream = plugin.getResource(fileName)) {
                     if (inputStream == null) {
-                        plugin.getLogger().warning("Resource not found: " + fileName);
                         continue;
                     }
 
@@ -178,17 +178,19 @@ public class LoadBlockSpawners {
     }
 
     private void loadItemFromFile(@NotNull File file) {
-        String itemKey = file.getName().replace(".yml", "");
+        String itemKey = file.getName().toLowerCase().replace(".yml", "");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        if (!config.contains(itemKey)) {
-            plugin.getLogger().warning("Item not found in config: " + itemKey);
-            return;
+        ConfigurationSection itemConfig = null;
+        for (String key : config.getKeys(false)) {
+            if (key.equalsIgnoreCase(itemKey)) {
+                itemConfig = config.getConfigurationSection(key);
+                break;
+            }
         }
 
-        ConfigurationSection itemConfig = config.getConfigurationSection(itemKey);
         if (itemConfig == null) {
-            plugin.getLogger().warning("Item configuration section not found: " + itemKey);
+            plugin.getLogger().warning("Item configuration section not found for: " + itemKey);
             return;
         }
 
@@ -208,6 +210,18 @@ public class LoadBlockSpawners {
         if (material == null || !material.isBlock()) {
             plugin.getLogger().warning("Invalid material for item " + itemKey + ": " + itemConfig.getString("Material"));
             return;
+        }
+
+        if (material.hasGravity()) {
+            plugin.getLogger().warning("\n"
+                    + "============================================\n"
+                    + "WARNING: The block set for item \"" + itemKey + "\" has gravity!\n"
+                    + "Material: " + material.name() + "\n"
+                    + "This could lead to misbehavior when placed in the world,\n"
+                    + "such as falling or breaking unexpectedly.\n"
+                    + "Please consider using a block that is not affected by gravity.\n"
+                    + "============================================"
+            );
         }
 
         ItemStack itemStack = new ItemStack(material);
