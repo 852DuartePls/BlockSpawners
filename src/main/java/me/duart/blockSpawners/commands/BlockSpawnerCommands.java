@@ -71,13 +71,13 @@ public class BlockSpawnerCommands implements CommandExecutor, TabCompleter {
 
         ItemStack item = loadBlockSpawners.getItem(itemKey);
         if (item == null) {
-            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red>Item not found: " + itemKey + "</red>")));
+            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red> Item not found: " + itemKey + "</red>")));
             return true;
         }
 
         targetPlayer.getInventory().addItem(item);
-        targetPlayer.sendMessage(announcerPrefix.append(mini.deserialize("<green>You have been given:<color:#864aff> " + itemKey + "</color>")));
-        sender.sendMessage(announcerPrefix.append(mini.deserialize("<green>Given<color:#864aff> " + itemKey + "</color> to " + targetPlayer.getName() + "</green>")));
+        targetPlayer.sendMessage(announcerPrefix.append(mini.deserialize("<green> You have been given:<color:#864aff> " + itemKey + "</color>")));
+        sender.sendMessage(announcerPrefix.append(mini.deserialize("<green> Given<color:#864aff> " + itemKey + "</color> to " + targetPlayer.getName() + "</green>")));
         return true;
     }
 
