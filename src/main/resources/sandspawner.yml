@@ -1,0 +1,19 @@
+sandspawner:
+  Material: SANDSTONE
+  DisplayName: "<color:#ff5e24><white>◆</white> Sand Spawner <white>◆</white></color>"
+  Lore:
+    - " "
+    - "<color:#ffaa2b><b>||</b> This Spawner generates</color>"
+    - "<color:#ffaa2b>Sand and Red Sand <b>||</b></color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - SAND
+    - RED_SAND
