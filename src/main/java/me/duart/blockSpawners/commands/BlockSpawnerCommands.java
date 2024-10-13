@@ -1,136 +1,149 @@
 package me.duart.blockSpawners.commands;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.duart.blockSpawners.BlockSpawners;
 import me.duart.blockSpawners.manager.LoadBlockSpawners;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NullMarked;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
-@NullMarked
-public class BlockSpawnerCommands implements CommandExecutor, TabCompleter {
+public class BlockSpawnerCommands {
+    private final MiniMessage mini = MiniMessage.miniMessage();
     private final BlockSpawners plugin;
     private final LoadBlockSpawners loadBlockSpawners;
-    private final MiniMessage mini = MiniMessage.miniMessage();
     private final String permission = "blockspawners.admin";
+    private final String pluginVersion = BlockSpawners.getPlugin(BlockSpawners.class).getPluginMeta().getVersion();
+    private final String pluginVersionFormat = "<green> v" + pluginVersion + "</green>";
+    private final String announcerPrefix = "<white>[<color:#9a63ff>BlockSpawners</color>]</white>";
 
     public BlockSpawnerCommands(LoadBlockSpawners loadBlockSpawners, BlockSpawners plugin) {
         this.plugin = plugin;
         this.loadBlockSpawners = loadBlockSpawners;
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        String pluginVersion = plugin.getPluginMeta().getVersion();
-        var plVerComponent = mini.deserialize(" <green>v" + pluginVersion + "</green>");
-        var announcerPrefix = mini.deserialize("<white>[<color:#9a63ff>BlockSpawners</color>]</white>");
-        var noPlayerFound = mini.deserialize("<red> Player not found!</red>");
+    public void registerCommands(final @NotNull JavaPlugin plugin) {
+        final LifecycleEventManager<@NotNull Plugin> lifecycleManager = plugin.getLifecycleManager();
+        lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Commands commands = event.registrar();
 
-        if (args.length == 0) {
-            sender.sendMessage(announcerPrefix.append(plVerComponent));
-            return true;
-        }
+            SuggestionProvider<CommandSourceStack> onlinePlayersSuggestion = (context, builder) -> {
+                String string = builder.getRemaining();
+                List<String> onlinePlayers = Bukkit.getOnlinePlayers()
+                        .stream()
+                        .map(Player::getName)
+                        .filter(name -> name.startsWith(string))
+                        .toList();
+                onlinePlayers.forEach(builder::suggest);
+                return builder.buildFuture();
+            };
 
-        String commandName = args[0].toLowerCase();
-        return switch (commandName) {
-            case "give" -> handleGive(sender, announcerPrefix, noPlayerFound, args);
-            case "reload" -> handleReload(sender, announcerPrefix);
-            default -> false;
-        };
+            SuggestionProvider<CommandSourceStack> itemKeysSuggestion = (context, builder) -> {
+                String input = builder.getRemaining();
+                List<String> itemKeys = loadBlockSpawners.getItemKeys();
+                List<String> filteredItemKeys = itemKeys.stream()
+                        .filter(key -> key.startsWith(input))
+                        .toList();
+                filteredItemKeys.forEach(builder::suggest);
+                return builder.buildFuture();
+            };
+
+            commands.register(plugin.getPluginMeta(), Commands.literal("blockspawners")
+                            .executes(context -> {
+                                context.getSource().getSender().sendRichMessage(announcerPrefix + pluginVersionFormat);
+                                return Command.SINGLE_SUCCESS;
+                            })
+                            .then(Commands.literal("give")
+                                    .requires(source -> source.getSender().hasPermission(permission))
+                                    .then(Commands.argument("itemKey", StringArgumentType.word())
+                                            .suggests(itemKeysSuggestion)
+                                            .then(Commands.argument("targetName", StringArgumentType.word())
+                                                    .suggests(onlinePlayersSuggestion)
+                                                    .executes(context -> {
+                                                        String itemKey = StringArgumentType.getString(context, "itemKey");
+                                                        String targetName = StringArgumentType.getString(context, "targetName");
+                                                        CommandSender sender = context.getSource().getSender();
+                                                        handleGive(sender, itemKey, targetName);
+                                                        return Command.SINGLE_SUCCESS;
+                                                    })
+                                            )
+                                            .executes(context -> {  // Handle case where targetName is not provided
+                                                String itemKey = StringArgumentType.getString(context, "itemKey");
+                                                CommandSender sender = context.getSource().getSender();
+                                                String targetName;
+
+                                                if (sender instanceof Player) {
+                                                    targetName = sender.getName();
+                                                } else {
+                                                    sender.sendMessage(mini.deserialize("<red>You must specify a target player when using this command from the console.</red>"));
+                                                    return 0;
+                                                }
+
+                                                handleGive(sender, itemKey, targetName);
+                                                return Command.SINGLE_SUCCESS;
+                                            })
+                                    )
+                            )
+                            .then(Commands.literal("reload")
+                                    .requires(source -> source.getSender().hasPermission(permission))
+                                    .executes(context -> {
+                                        CommandSender sender = context.getSource().getSender();
+                                        handleReload(sender);
+                                        return Command.SINGLE_SUCCESS;
+                                    }))
+                            .build(),
+                    null,
+                    List.of("bs")
+            );
+        });
     }
 
-    private boolean handleGive(CommandSender sender, Component announcerPrefix, Component noPlayerFound, String[] args) {
-        if (!sender.hasPermission(permission)) {
-            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red> You don't have permission to use this command.</red>")));
-            return false;
-        }
+    private void handleGive(CommandSender sender, String itemKey, String targetName) {
+        var announcerPrefixComponent = mini.deserialize(announcerPrefix);
+        Player targetPlayer = targetName != null ? Bukkit.getPlayer(targetName) : null;
 
-        if (args.length < 2) {
-            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red> You must specify an item key.</red>")));
-            return false;
-        }
-
-        String itemKey = args[1];
-        Player targetPlayer = getTargetPlayer(sender, args);
-
-        if (targetPlayer == null) {
-            sender.sendMessage(noPlayerFound);
-            return false;
+        if (targetPlayer == null && targetName != null) {
+            String noPlayerFound = announcerPrefix + "<red> Player not found!</red>";
+            sender.sendMessage(mini.deserialize(noPlayerFound));
+            return;
         }
 
         ItemStack item = loadBlockSpawners.getItem(itemKey);
         if (item == null) {
-            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red> Item not found: " + itemKey + "</red>")));
-            return true;
+            sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<red> Item not found: " + itemKey + "</red>")));
+            return;
+        }
+
+        if (targetPlayer == null) {
+            targetPlayer = (Player) sender;
         }
 
         targetPlayer.getInventory().addItem(item);
-        targetPlayer.sendMessage(announcerPrefix.append(mini.deserialize("<green> You have been given:<color:#864aff> " + itemKey + "</color>")));
-        sender.sendMessage(announcerPrefix.append(mini.deserialize("<green> Given<color:#864aff> " + itemKey + "</color> to " + targetPlayer.getName() + "</green>")));
-        return true;
+        targetPlayer.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> You have been given:<color:#864aff> " + itemKey + "</color>")));
+        sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> Given<color:#864aff> " + itemKey + "</color> to " + targetPlayer.getName() + "</green>")));
     }
 
-    private boolean handleReload(CommandSender sender, Component announcerPrefix) {
-        if (!sender.hasPermission(permission)) {
-            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red>You don't have permission to use this command.</red>")));
-            return false;
-        }
+    private void handleReload(@NotNull CommandSender sender) {
+        var announcerPrefixComponent = mini.deserialize(announcerPrefix);
+        sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> Reloading...</green>")));
 
-        sender.sendMessage(announcerPrefix.append(mini.deserialize("<green> Reloading...</green>")));
-
-        plugin.onReload().thenAccept(result -> {
-            sender.sendMessage(announcerPrefix.append(mini.deserialize("<green> Reload completed successfully!</green>")));
-        }).exceptionally(ex -> {
+        plugin.onReload().thenAccept(result -> sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> Reload completed successfully!</green>")))).exceptionally(ex -> {
             plugin.getLogger().severe("An error occurred during reload: " + ex.getMessage());
-            sender.sendMessage(announcerPrefix.append(mini.deserialize("<red> Reload failed. Check console for details.</red>")));
+            sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<red> Reload failed. Check console for details.</red>")));
             return null;
         });
-
-        return true;
-    }
-
-    private @Nullable Player getTargetPlayer(CommandSender sender, String [] args) {
-        if (args.length == 3) {
-            return Bukkit.getPlayer(args[2]);
-        } else if (sender instanceof Player) {
-            return (Player) sender;
-        } else {
-            sender.sendMessage(mini.deserialize("<red>You must specify a player when running this command from the console!"));
-            return null;
-        }
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-        if (!sender.hasPermission(permission)) return completions;
-        if (args.length == 1) {
-            completions.add("give");
-            completions.add("reload");
-        } else if (args.length == 2) {
-            if ("give".equalsIgnoreCase(args[0])) {
-                completions.addAll(loadBlockSpawners.getItemKeys());
-            }
-        } else if (args.length == 3) {
-            if ("give".equalsIgnoreCase(args[0])) {
-                completions.addAll(Bukkit.getOnlinePlayers()
-                        .stream()
-                        .map(Player::getName)
-                        .toList());
-            }
-        }
-
-        return completions;
     }
 }

@@ -1,0 +1,6 @@
+name: BlockSpawners
+version: '0.0.3'
+main: me.duart.blockSpawners.BlockSpawners
+api-version: '1.21'
+authors: [ DaveDuart ]
+description: Simple Block Spawners

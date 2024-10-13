@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "me.duart"
-version = "0.0.2"
+version = "0.0.3"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ tasks {
             "apiVersion" to "1.21"
         )
         inputs.properties(properties)
-        filesMatching("plugin.yml") {
+        filesMatching("paper-plugin.yml") {
             expand(properties)
         }
     }
