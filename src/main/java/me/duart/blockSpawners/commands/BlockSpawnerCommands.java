@@ -2,8 +2,6 @@ package me.duart.blockSpawners.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -40,27 +38,6 @@ public class BlockSpawnerCommands {
         lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
 
-            SuggestionProvider<CommandSourceStack> onlinePlayersSuggestion = (context, builder) -> {
-                String string = builder.getRemaining();
-                List<String> onlinePlayers = Bukkit.getOnlinePlayers()
-                        .stream()
-                        .map(Player::getName)
-                        .filter(name -> name.startsWith(string))
-                        .toList();
-                onlinePlayers.forEach(builder::suggest);
-                return builder.buildFuture();
-            };
-
-            SuggestionProvider<CommandSourceStack> itemKeysSuggestion = (context, builder) -> {
-                String input = builder.getRemaining();
-                List<String> itemKeys = loadBlockSpawners.getItemKeys();
-                List<String> filteredItemKeys = itemKeys.stream()
-                        .filter(key -> key.startsWith(input))
-                        .toList();
-                filteredItemKeys.forEach(builder::suggest);
-                return builder.buildFuture();
-            };
-
             commands.register(plugin.getPluginMeta(), Commands.literal("blockspawners")
                             .executes(context -> {
                                 context.getSource().getSender().sendRichMessage(announcerPrefix + pluginVersionFormat);
@@ -68,10 +45,9 @@ public class BlockSpawnerCommands {
                             })
                             .then(Commands.literal("give")
                                     .requires(source -> source.getSender().hasPermission(permission))
-                                    .then(Commands.argument("itemKey", StringArgumentType.word())
-                                            .suggests(itemKeysSuggestion)
+                                    .then(Commands.argument("itemKey", new ItemKeyArgument(loadBlockSpawners))
                                             .then(Commands.argument("targetName", StringArgumentType.word())
-                                                    .suggests(onlinePlayersSuggestion)
+                                                    .suggests(new OnlinePlayersArgument())
                                                     .executes(context -> {
                                                         String itemKey = StringArgumentType.getString(context, "itemKey");
                                                         String targetName = StringArgumentType.getString(context, "targetName");
@@ -128,7 +104,8 @@ public class BlockSpawnerCommands {
         }
 
         if (targetPlayer == null) {
-            targetPlayer = (Player) sender;
+            sender.sendMessage(mini.deserialize("<red>You must specify a target player when using this command from the console.</red>"));
+            return;
         }
 
         targetPlayer.getInventory().addItem(item);
