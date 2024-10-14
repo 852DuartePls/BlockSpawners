@@ -16,7 +16,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("UnstableApiUsage")

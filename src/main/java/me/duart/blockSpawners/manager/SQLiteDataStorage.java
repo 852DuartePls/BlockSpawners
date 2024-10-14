@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import me.duart.blockSpawners.BlockSpawners;
 import org.bukkit.Bukkit;
@@ -82,29 +83,25 @@ public class SQLiteDataStorage implements DataStorage {
         }
     }
 
-    @Override
     public Map<Location, ItemStack> loadSpawnerData() {
         String selectQuery = "SELECT * FROM spawners";
         Map<Location, ItemStack> spawners = new HashMap<>();
-
         try (Connection conn = connect();
-             PreparedStatement pstmt = conn.prepareStatement(selectQuery);
-             ResultSet rs = pstmt.executeQuery()) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(selectQuery)) {
 
             while (rs.next()) {
-                String world = rs.getString("world");
+                String worldName = rs.getString("world");
                 int x = rs.getInt("x");
                 int y = rs.getInt("y");
                 int z = rs.getInt("z");
-                byte[] itemData = rs.getBytes("item");
-                Location location = new Location(Bukkit.getWorld(world), x, y, z);
-                ItemStack item = deserializeItemStack(itemData);
+                ItemStack item = deserializeItemStack(rs.getBytes("item"));
+                Location location = new Location(Bukkit.getWorld(worldName), x, y, z);
                 spawners.put(location, item);
             }
         } catch (SQLException e) {
             plugin.getLogger().severe("Could not load spawners from database: " + e.getMessage());
         }
-
         return spawners;
     }
 
@@ -114,5 +111,15 @@ public class SQLiteDataStorage implements DataStorage {
 
     private @NotNull ItemStack deserializeItemStack(byte[] data) {
         return ItemStack.deserializeBytes(data);
+    }
+
+    @Override
+    public CompletableFuture<Void> saveSpawnerDataAsync(Map<Location, ItemStack> spawners) {
+        return CompletableFuture.runAsync(() -> saveSpawnerData(spawners));
+    }
+
+    @Override
+    public CompletableFuture<Map<Location, ItemStack>> loadSpawnerDataAsync() {
+        return CompletableFuture.supplyAsync(this::loadSpawnerData);
     }
 }

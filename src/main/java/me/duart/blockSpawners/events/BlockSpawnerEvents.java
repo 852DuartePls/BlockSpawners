@@ -26,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -220,21 +221,23 @@ public class BlockSpawnerEvents implements Listener {
     private void saveSpawnersToFile() {
         CompletableFuture.runAsync(() -> {
             try {
-                dataStorage.saveSpawnerData(placedSpawners);
-            } catch (SQLException e) {
+                dataStorage.saveSpawnerDataAsync(placedSpawners).get();
+            } catch (Exception e) {
                 plugin.getLogger().severe("Error saving spawner data: " + e.getMessage());
             }
         });
     }
 
     public void loadSpawnersFromFile() {
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture.supplyAsync(() -> {
             try {
-                placedSpawners.putAll(dataStorage.loadSpawnerData());
-            } catch (SQLException e) {
+                return dataStorage.loadSpawnerDataAsync().get();
+            } catch (Exception e) {
                 plugin.getLogger().severe("Error loading spawner data: " + e.getMessage());
+                return new HashMap<Location, ItemStack>();
             }
-
+        }).thenAccept(spawners -> {
+            placedSpawners.putAll(spawners);
             for (Map.Entry<Location, ItemStack> entry : placedSpawners.entrySet()) {
                 Location location = entry.getKey();
                 ItemStack item = entry.getValue();
@@ -276,5 +279,4 @@ public class BlockSpawnerEvents implements Listener {
         if (str.isEmpty()) return str;
         return Character.toUpperCase(str.charAt(0)) + str.substring(1).toLowerCase();
     }
-
 }
