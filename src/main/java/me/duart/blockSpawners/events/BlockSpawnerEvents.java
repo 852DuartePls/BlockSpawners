@@ -241,17 +241,34 @@ public class BlockSpawnerEvents implements Listener {
             for (Map.Entry<Location, ItemStack> entry : placedSpawners.entrySet()) {
                 Location location = entry.getKey();
                 ItemStack item = entry.getValue();
-                ParticleTasks particleTasks = new ParticleTasks(location);
-                particleTasks.particleStart();
-                particleTasksMap.put(location, particleTasks);
-                String itemKey = loadBlockSpawners.getItemKeyFromSpawnerItem(item);
-                if (itemKey != null) {
-                    SpawningTask spawningTask = new SpawningTask(loadBlockSpawners, location.getBlock(), itemKey);
-                    spawningTask.startTask();
-                    spawningTasksMap.put(location, spawningTask);
+                Block block = location.getBlock();
+
+                if (isInvalidBlock(block)) {
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            dataStorage.removeSpawnerData(location);
+                        } catch (SQLException e) {
+                            plugin.getLogger().severe("Removing spawner tasks from " + location + " because the block is invalid \n" + e.getMessage());
+                        }
+                    });
+                } else {
+                    ParticleTasks particleTasks = new ParticleTasks(location);
+                    particleTasks.particleStart();
+                    particleTasksMap.put(location, particleTasks);
+                    String itemKey = loadBlockSpawners.getItemKeyFromSpawnerItem(item);
+                    if (itemKey != null) {
+                        SpawningTask spawningTask = new SpawningTask(loadBlockSpawners, block, itemKey);
+                        spawningTask.startTask();
+                        spawningTasksMap.put(location, spawningTask);
+                    }
                 }
             }
         });
+    }
+
+    private boolean isInvalidBlock(Block block) {
+        Material type = block.getType();
+        return type == Material.AIR || type == Material.WATER || type == Material.LAVA;
     }
 
     public CompletableFuture<Void> stopAllTasks() {

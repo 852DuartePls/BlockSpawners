@@ -1,5 +1,5 @@
 concretespawner:
-  Material: PINK_CONCRETE
+  Material: PINK_CONCRETE_POWDER
   DisplayName: "<light_purple>◆</light_purple> <color:#8d36ff>Concrete Spawner</color> <light_purple>◆</light_purple>"
   Lore:
     - " "

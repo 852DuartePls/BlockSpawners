@@ -12,7 +12,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class ParticleTasks extends BukkitRunnable {
 
-    private static final int TICKS_PER_SECOND = 20;
+    private static final int TICKS_PER_SECOND = 60;
     private final Location location;
 
     public ParticleTasks(Location location) {

@@ -1,5 +1,5 @@
 sandspawner:
-  Material: SANDSTONE
+  Material: SAND
   DisplayName: "<color:#ff5e24><white>◆</white> Sand Spawner <white>◆</white></color>"
   Lore:
     - " "
