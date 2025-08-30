@@ -114,14 +114,11 @@ public class BlockSpawnerEvents implements Listener {
         Location location = block.getLocation();
         ParticleTasks particleTasks = particleTasksMap.remove(location);
         SpawningTask spawningTask = spawningTasksMap.remove(location);
-        ItemStack originalSpawnerItem;
+        ItemStack originalSpawnerItem = placedSpawners.get(location);
         if (event.isCancelled()) return;
         if (particleTasks != null) particleTasks.particleStop();
         if (spawningTask != null) spawningTask.stopTask();
 
-        synchronized (placedSpawners) {
-            originalSpawnerItem = placedSpawners.remove(location);
-        }
         if (originalSpawnerItem == null) return;
 
         CompletableFuture.runAsync(() -> {
