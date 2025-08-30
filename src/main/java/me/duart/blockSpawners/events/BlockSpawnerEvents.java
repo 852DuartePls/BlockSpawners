@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static me.duart.blockSpawners.BlockSpawners.mini;
 
@@ -129,8 +131,6 @@ public class BlockSpawnerEvents implements Listener {
             }
         });
 
-        saveSpawnersToFile();
-
         Player player = event.getPlayer();
         ItemStack droppedItemStack = originalSpawnerItem.clone();
 
@@ -215,6 +215,12 @@ public class BlockSpawnerEvents implements Listener {
         event.setCancelled(true);
     }
 
+    private final ExecutorService saverExecutor = Executors.newSingleThreadExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "BlockSpawners-Saver");
+        thread.setDaemon(true);
+        return thread;
+    });
+
     private void saveSpawnersToFile() {
         CompletableFuture.runAsync(() -> {
             try {
@@ -222,7 +228,7 @@ public class BlockSpawnerEvents implements Listener {
             } catch (Exception e) {
                 plugin.getLogger().severe("Error saving spawner data: " + e.getMessage());
             }
-        });
+        }, saverExecutor);
     }
 
     public void loadSpawnersFromFile() {
