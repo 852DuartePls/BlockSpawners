@@ -66,6 +66,7 @@ public class BlockSpawnerEvents implements Listener {
     public void onPlayerPlaceSpawnerOrPowder(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         ItemStack spawnerItem = event.getItemInHand();
+        if (event.isCancelled()) return;
 
         String itemKey = loadBlockSpawners.getItemKeyFromSpawnerItem(spawnerItem);
         if (itemKey == null) return;
@@ -110,18 +111,20 @@ public class BlockSpawnerEvents implements Listener {
         saveSpawnersToFile();
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onPlayerBreakSpawner(BlockBreakEvent event) {
+        if (event.isCancelled()) return;
+
         Block block = event.getBlock();
         Location location = block.getLocation();
+
+        ItemStack originalSpawnerItem = placedSpawners.remove(location);
+        if (originalSpawnerItem == null) return;
+
         ParticleTasks particleTasks = particleTasksMap.remove(location);
         SpawningTask spawningTask = spawningTasksMap.remove(location);
-        ItemStack originalSpawnerItem = placedSpawners.get(location);
-        if (event.isCancelled()) return;
         if (particleTasks != null) particleTasks.particleStop();
         if (spawningTask != null) spawningTask.stopTask();
-
-        if (originalSpawnerItem == null) return;
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -129,15 +132,18 @@ public class BlockSpawnerEvents implements Listener {
             } catch (SQLException e) {
                 plugin.getLogger().severe("Error removing spawner data: " + e.getMessage());
             }
-        });
+        }, saverExecutor);
+
+        saveSpawnersToFile();
 
         Player player = event.getPlayer();
-        ItemStack droppedItemStack = originalSpawnerItem.clone();
-
         if (player.getGameMode() != GameMode.SURVIVAL) return;
+
         event.setDropItems(false);
-        droppedItemStack.setAmount(1);
-        Item droppedItem = player.getWorld().dropItemNaturally(location.add(0.5, 0.5, 0.5), droppedItemStack);
+        Item droppedItem = player.getWorld().dropItemNaturally(
+                location.add(0.5, 0.5, 0.5),
+                originalSpawnerItem.clone()
+        );
         if (originalSpawnerItem.hasItemMeta() && originalSpawnerItem.getItemMeta().hasDisplayName()) {
             droppedItem.customName(originalSpawnerItem.getItemMeta().displayName());
             droppedItem.setCustomNameVisible(true);
@@ -145,14 +151,14 @@ public class BlockSpawnerEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent event) {
         Block movedBlock = event.getBlock().getRelative(event.getDirection());
         if (!placedSpawners.containsKey(movedBlock.getLocation())) return;
         event.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onPistonRetract(BlockPistonRetractEvent event) {
         for (Block block : event.getBlocks()) {
             if (placedSpawners.containsKey(block.getLocation())) {
@@ -162,7 +168,7 @@ public class BlockSpawnerEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onBlockBurn(BlockBurnEvent event) {
         Block burnedBlock = event.getBlock();
         if (!placedSpawners.containsKey(burnedBlock.getLocation())) return;
@@ -177,19 +183,19 @@ public class BlockSpawnerEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
         Block explodedBlock = event.getBlock();
         if (!placedSpawners.containsKey(explodedBlock.getLocation())) return;
         event.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
         event.blockList().removeIf(block -> placedSpawners.containsKey(block.getLocation()));
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onFallingBlock(EntityChangeBlockEvent event) {
         if (!(event.getEntity() instanceof FallingBlock)) return;
 
@@ -199,7 +205,7 @@ public class BlockSpawnerEvents implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler
     public void onConcretePowderForm(BlockFormEvent event) {
         Block block = event.getBlock();
         Location location = block.getLocation();
