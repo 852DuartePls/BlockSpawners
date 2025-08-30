@@ -1,10 +1,10 @@
 plugins {
     `java-library`
-    id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 group = "me.duart"
-version = "0.0.2"
+version = "0.0.4"
+description = "Simple and configurable Block Spawners"
 
 repositories {
     mavenCentral()
@@ -30,21 +30,13 @@ tasks {
         val properties = mapOf(
             "version" to project.version,
             "name" to project.name,
+            "authors" to "DaveDuart",
+            "description" to project.description,
             "apiVersion" to "1.21"
         )
         inputs.properties(properties)
-        filesMatching("plugin.yml") {
+        filesMatching("paper-plugin.yml") {
             expand(properties)
-        }
-    }
-    runServer {
-        minecraftVersion("1.21.1")
-        serverJar(file("/run/purpur.jar"))
-        downloadPlugins {
-            github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
-            url("https://download.luckperms.net/1556/bukkit/loader/LuckPerms-Bukkit-5.4.141.jar")
-            url("https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsX-2.21.0-dev+115-6157668.jar")
-            modrinth("lpc-minimessage-chat-formatter", "3.6.5")
         }
     }
 }
