@@ -29,10 +29,10 @@ public class ParticleTasks extends BukkitRunnable {
         World world = location.getWorld();
         if (world == null) return;
         // TODO: Same thing, configurable amount and colors and toggleable
-        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, ORANGE);
-        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, LIME);
-        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, AQUA);
-        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, PURPLE);
+        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5, ORANGE);
+        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5, LIME);
+        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5, AQUA);
+        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5, PURPLE);
     }
 
     public void particleStart() {
