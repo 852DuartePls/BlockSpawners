@@ -52,7 +52,7 @@ public class BlockSpawnerEvents implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerDropSpawner(PlayerDropItemEvent event) {
         ItemStack spawnerItem = event.getItemDrop().getItemStack();
-        if (loadBlockSpawners.isSpawnerItem(spawnerItem)) return;
+        if (loadBlockSpawners.isNotSpawnerItem(spawnerItem)) return;
         String itemKey = loadBlockSpawners.getItemKeyFromSpawnerItem(spawnerItem);
         if (itemKey == null) return;
         Component displayName = loadBlockSpawners.getDisplayName(itemKey);
@@ -94,7 +94,7 @@ public class BlockSpawnerEvents implements Listener {
             }
         }
 
-        if (loadBlockSpawners.isSpawnerItem(spawnerItem)) return;
+        if (loadBlockSpawners.isNotSpawnerItem(spawnerItem)) return;
 
         Location location = block.getLocation();
         ParticleTasks particleTasks = new ParticleTasks(location);

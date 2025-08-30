@@ -22,10 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -33,14 +30,14 @@ import static me.duart.blockSpawners.BlockSpawners.mini;
 
 public class LoadBlockSpawners {
     private final JavaPlugin plugin;
-    private final Map<String, ItemStack> items;
+    private final Map<String, ItemStack> items = new HashMap<>();
+    private final Map<String, NamespacedKey> keys = new HashMap<>();
     private final File spawnersFolder;
     private final Map<String, List<Material>> spawningMaterialsMap = new HashMap<>();
     private final Map<String, Integer> spawnTicksMap = new HashMap<>();
 
     public LoadBlockSpawners(@NotNull JavaPlugin plugin) {
         this.plugin = plugin;
-        this.items = new HashMap<>();
         this.spawnersFolder = new File(plugin.getDataFolder(), "spawners");
         setupSpawnerFiles();
     }
@@ -48,7 +45,9 @@ public class LoadBlockSpawners {
     public CompletableFuture<Boolean> reloadSpawnerFiles() {
         return CompletableFuture.supplyAsync(() -> {
             items.clear();
+            keys.clear();
             spawningMaterialsMap.clear();
+            spawnTicksMap.clear();
 
             File[] spawnerFiles = spawnersFolder.listFiles((dir, name) -> name.endsWith(".yml"));
 
@@ -59,21 +58,15 @@ public class LoadBlockSpawners {
 
             boolean allFilesLoadedSuccessfully = true;
 
-            for (File spawnerFile : spawnerFiles) {
+            for (File file : spawnerFiles) {
                 try {
-                    loadItemFromFile(spawnerFile);
+                    loadItemFromFile(file);
                 } catch (Exception e) {
-                    plugin.getLogger().severe("Error loading spawner file: " + spawnerFile.getName() + " - " + e.getMessage());
+                    plugin.getLogger().severe("Error loading " + file.getName() + " - " + e.getMessage());
                     allFilesLoadedSuccessfully = false;
                 }
             }
-
-            if (allFilesLoadedSuccessfully) {
-                plugin.getLogger().info("Spawner files reloaded successfully.");
-            } else {
-                plugin.getLogger().warning("Some spawner files failed to load.");
-            }
-
+            plugin.getLogger().info("Spawner files reloaded. Success: " + allFilesLoadedSuccessfully);
             return allFilesLoadedSuccessfully;
         });
     }
@@ -86,7 +79,8 @@ public class LoadBlockSpawners {
                 plugin.getLogger().warning("Could not create folder: " + spawnersFolder.getAbsolutePath());
             }
         }
-        String[] spawnerFiles = {
+
+        String[] defaultFiles = {
                 "concretespawner.yml", "stainedglassspawner.yml", "woolspawner.yml",
                 "woodspawner.yml", "clayspawner.yml", "concretespawner.yml",
                 "dirtspawner.yml", "glassspawner.yml", "glazedspawner.yml",
@@ -96,36 +90,41 @@ public class LoadBlockSpawners {
                 "sealanternspawner.yml", "terracottaspawner.yml"
         };
 
-        for (String fileName : spawnerFiles) {
-            File spawnerFile = new File(spawnersFolder, fileName);
-            if (!spawnerFile.exists()) {
+        for (String fileName : defaultFiles) {
+            File targetFile = new File(spawnersFolder, fileName);
+            if (!targetFile.exists()) {
                 try (InputStream inputStream = plugin.getResource(fileName)) {
-                    if (inputStream == null) {
-                        continue;
+                    if (inputStream != null) {
+                        Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
-
-                    Files.copy(inputStream, spawnerFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     plugin.getLogger().warning("Error while copying file " + fileName + ": " + e.getMessage());
                 }
             }
-            loadItemFromFile(spawnerFile);
+            loadItemFromFile(targetFile);
         }
     }
 
-    public boolean isSpawnerItem(ItemStack item) {
+    public boolean isNotSpawnerItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return true;
         ItemMeta itemMeta = item.getItemMeta();
         if (itemMeta == null) return true;
 
-        for (String key : items.keySet()) {
-            NamespacedKey namespacedKey = new NamespacedKey(plugin, key);
-            if (itemMeta.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
-                String value = itemMeta.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
-                if (value != null && value.equals(key)) return false;
-            }
+        for (NamespacedKey key : keys.values()) {
+            if (itemMeta.getPersistentDataContainer().has(key, PersistentDataType.STRING)) return false;
         }
         return true;
+    }
+
+    public String getItemKeyFromSpawnerItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return null;
+        ItemMeta itemMeta = item.getItemMeta();
+        if (itemMeta == null) return null;
+        for (Map.Entry<String, NamespacedKey> e : keys.entrySet()) {
+            String val = itemMeta.getPersistentDataContainer().get(e.getValue(), PersistentDataType.STRING);
+            if (val != null) return e.getKey();
+        }
+        return null;
     }
 
     public ItemStack getItem(String key) {
@@ -133,40 +132,15 @@ public class LoadBlockSpawners {
     }
 
     public List<String> getItemKeys() {
-        return new ArrayList<>(items.keySet());
-    }
-
-    public String getItemKeyFromSpawnerItem(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) {
-            return null;
-        }
-
-        ItemMeta itemMeta = item.getItemMeta();
-        if (itemMeta == null) {
-            return null;
-        }
-
-        for (String key : items.keySet()) {
-            NamespacedKey namespacedKey = new NamespacedKey(plugin, key);
-            if (itemMeta.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
-                String value = itemMeta.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
-                if (value != null && value.equals(key)) {
-                    return key;
-                }
-            }
-        }
-        return null;
+        return List.copyOf(items.keySet());
     }
 
     public Component getDisplayName(String key) {
         ItemStack itemStack = getItem(key);
-        if (itemStack != null && itemStack.hasItemMeta()) {
-            ItemMeta itemMeta = itemStack.getItemMeta();
-            if (itemMeta != null && itemMeta.hasDisplayName()) {
-                return itemMeta.displayName();
-            }
-        }
-        return null;
+        return (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName())
+                ? itemStack.getItemMeta().displayName()
+                : null;
+
     }
 
     public int getSpawnTicksForItem(String itemKey) {
@@ -174,41 +148,30 @@ public class LoadBlockSpawners {
     }
 
     public List<Material> getSpawningMaterialsForItem(String itemKey) {
-        return spawningMaterialsMap.getOrDefault(itemKey, new ArrayList<>());
+        return spawningMaterialsMap.getOrDefault(itemKey, List.of());
     }
 
     private void loadItemFromFile(@NotNull File file) {
         String itemKey = file.getName().toLowerCase().replace(".yml", "");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        ConfigurationSection itemConfig = null;
-        for (String key : config.getKeys(false)) {
-            if (key.equalsIgnoreCase(itemKey)) {
-                itemConfig = config.getConfigurationSection(key);
-                break;
-            }
-        }
-
-        if (itemConfig == null) {
-            plugin.getLogger().warning("Item configuration section not found for: " + itemKey);
+        ConfigurationSection section = config.getConfigurationSection(itemKey);
+        if (section == null) {
+            plugin.getLogger().warning("Section '" + itemKey + "' missing in " + file.getName());
             return;
         }
 
-        int spawnTicksValue = itemConfig.getInt("SpawnTicks", 200);
-        spawnTicksMap.put(itemKey, spawnTicksValue);
+        spawnTicksMap.put(itemKey, section.getInt("SpawnTicks", 200));
 
-        List<Material> materials = new ArrayList<>();
-        List<String> materialNames = itemConfig.getStringList("SpawningMaterials");
-        for (String materialName : materialNames) {
-            Material material = Material.matchMaterial(materialName.toUpperCase());
-            if (material != null) materials.add(material);
-            else plugin.getLogger().warning("Invalid material: " + materialName);
-        }
+        List<Material> materials = section.getStringList("SpawningMaterials").stream()
+                .map(string -> Material.matchMaterial(string.toUpperCase()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(ArrayList::new));
         spawningMaterialsMap.put(itemKey, materials);
 
-        Material material = Material.matchMaterial(itemConfig.getString("Material", "STONE").toUpperCase());
+        Material material = Material.matchMaterial(section.getString("Material", "STONE").toUpperCase());
         if (material == null || !material.isBlock()) {
-            plugin.getLogger().warning("Invalid material for item " + itemKey + ": " + itemConfig.getString("Material"));
+            plugin.getLogger().warning("Invalid material for item " + itemKey + ": " + section.getString("Material"));
             return;
         }
 
@@ -232,36 +195,30 @@ public class LoadBlockSpawners {
             return;
         }
 
-        String displayName = itemConfig.getString("DisplayName");
+        String displayName = section.getString("DisplayName");
         if (displayName != null) {
             Component componentDisplayName = mini.deserialize(displayName).decoration(TextDecoration.ITALIC, false);
             itemMeta.displayName(componentDisplayName);
         }
 
-        List<Component> lore = itemConfig.getStringList("Lore").stream()
+        List<Component> lore = section.getStringList("Lore").stream()
                 .map(loreLine -> mini.deserialize(loreLine).decoration(TextDecoration.ITALIC, false))
-                .collect(Collectors.toList());
+                .toList();
 
-        if (!lore.isEmpty()) {
-            itemMeta.lore(lore);
-        }
+        if (!lore.isEmpty()) itemMeta.lore(lore);
 
-        ConfigurationSection enchantmentsConfig = itemConfig.getConfigurationSection("Enchantments");
-        if (enchantmentsConfig != null) {
+        ConfigurationSection enchantments = section.getConfigurationSection("Enchantments");
+        if (enchantments != null) {
             RegistryAccess registryAccess = RegistryAccess.registryAccess();
-            for (String enchantmentKey : enchantmentsConfig.getKeys(false)) {
-                String lowercaseEnchantmentKey = enchantmentKey.toLowerCase();
-                Enchantment enchantment = registryAccess.getRegistry(RegistryKey.ENCHANTMENT).get(NamespacedKey.minecraft(lowercaseEnchantmentKey));
-                if (enchantment != null) {
-                    itemMeta.addEnchant(enchantment, enchantmentsConfig.getInt(enchantmentKey), true);
-                } else {
-                    plugin.getLogger().warning("Enchantment " + enchantmentKey + " not found in config!");
-                }
+            for (String enchantmentKey : enchantments.getKeys(false)) {
+                Enchantment enchantment = registryAccess.getRegistry(RegistryKey.ENCHANTMENT)
+                        .get(NamespacedKey.minecraft(enchantmentKey.toLowerCase()));
+                if (enchantment != null) itemMeta.addEnchant(enchantment, enchantments.getInt(enchantmentKey), true);
             }
         }
 
-        boolean unbreakable = itemConfig.getBoolean("Unbreakable", true);
-        ConfigurationSection flagsSection = itemConfig.getConfigurationSection("Flags");
+        boolean unbreakable = section.getBoolean("Unbreakable", true);
+        ConfigurationSection flagsSection = section.getConfigurationSection("Flags");
         boolean hideEnchantments = flagsSection != null && flagsSection.getBoolean("HideEnchantments", false);
         boolean hideUnbreakable = flagsSection != null && flagsSection.getBoolean("HideUnbreakable", false);
 
@@ -269,10 +226,12 @@ public class LoadBlockSpawners {
         if (hideEnchantments) itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         if (hideUnbreakable) itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
-        itemMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, itemKey), PersistentDataType.STRING, itemKey);
-        itemStack.setItemMeta(itemMeta);
+        NamespacedKey key = new NamespacedKey(plugin, itemKey);
+        itemMeta.getPersistentDataContainer().set(key, PersistentDataType.STRING, itemKey);
 
+        itemStack.setItemMeta(itemMeta);
         items.put(itemKey, itemStack);
+        keys.put(itemKey, key);
         plugin.getLogger().info("Loaded item: " + itemKey);
     }
 }
