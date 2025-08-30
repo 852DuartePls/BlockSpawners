@@ -5,6 +5,8 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import me.duart.blockSpawners.BlockSpawners;
 import org.bukkit.Bukkit;
@@ -31,6 +33,13 @@ public class SQLiteDataStorage implements DataStorage {
         this.databaseUrl = "jdbc:sqlite:" + dbFile.getAbsolutePath();
         initializeDatabase();
     }
+
+    private final ExecutorService dbWriter =
+            Executors.newSingleThreadExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "BlockSpawners-DB");
+                thread.setDaemon(true);
+                return thread;
+            });
 
     private void initializeDatabase() {
         try (Connection conn = connect();
@@ -115,11 +124,11 @@ public class SQLiteDataStorage implements DataStorage {
 
     @Override
     public CompletableFuture<Void> saveSpawnerDataAsync(Map<Location, ItemStack> spawners) {
-        return CompletableFuture.runAsync(() -> saveSpawnerData(spawners));
+        return CompletableFuture.runAsync(() -> saveSpawnerData(spawners), dbWriter);
     }
 
     @Override
     public CompletableFuture<Map<Location, ItemStack>> loadSpawnerDataAsync() {
-        return CompletableFuture.supplyAsync(this::loadSpawnerData);
+        return CompletableFuture.supplyAsync(this::loadSpawnerData, dbWriter);
     }
 }
