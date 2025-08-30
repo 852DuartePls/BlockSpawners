@@ -1,0 +1,20 @@
+prismarinespawner:
+  Material: PRISMARINE
+  DisplayName: "<gradient:#3b28cc:#3f8efc:#add7f6>◆ Prismarine Spawner ◆</gradient>"
+  Lore:
+    - " "
+    - "<color:#3f8efc><b>||</b> This spawner generates</color>"
+    - "<color:#3f8efc>Prismarine, Prismarine Bricks, and Dark Prismarine blocks <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - PRISMARINE
+    - PRISMARINE_BRICKS
+    - DARK_PRISMARINE

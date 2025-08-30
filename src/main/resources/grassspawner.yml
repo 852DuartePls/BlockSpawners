@@ -1,0 +1,18 @@
+grassspawner:
+  Material: GRASS_BLOCK
+  DisplayName: "<dark_green>◆</dark_green> <green>Grass Spawner</green> <dark_green>◆</dark_green>"
+  Lore:
+    - " "
+    - "<color:#38ff74><b>||</b> This spawner generates</color>"
+    - "<color:#38ff74>Grass blocks <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - GRASS_BLOCK

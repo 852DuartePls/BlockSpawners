@@ -85,7 +85,7 @@ public class LoadBlockSpawners {
                 "woodspawner.yml", "clayspawner.yml", "concretespawner.yml",
                 "dirtspawner.yml", "glassspawner.yml", "glazedspawner.yml",
                 "glowstonespawner.yml", "granitespawner.yml", "grassspawner.yml",
-                "myceliumspawner.yml", "netherrackspawner.yml", "obsidianspawner",
+                "myceliumspawner.yml", "netherrackspawner.yml", "obsidianspawner.yml",
                 "prismarinespawner.yml", "quartzspawner.yml", "sandspawner.yml",
                 "sealanternspawner.yml", "terracottaspawner.yml"
         };

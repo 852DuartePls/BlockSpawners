@@ -1,0 +1,31 @@
+glazedspawner:
+  Material: WHITE_GLAZED_TERRACOTTA
+  DisplayName: "◆ <gradient:#FFFFFF:#FCD05C:#4498DB>Glazed Terracotta Spawner</gradient> ◆"
+  Lore:
+    - " "
+    - "<color:#ff66d1><b>||</b> This spawner generates</color>"
+    - "<color:#ff66d1>every single <gradient:#FF0000:#FF7F00:#FFFF00:#00FF00:#0000FF:#4B0082:#9400D3>Glazed Terracotta</gradient> <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+  SpawnTicks: 200
+  SpawningMaterials:
+    - WHITE_GLAZED_TERRACOTTA
+    - ORANGE_GLAZED_TERRACOTTA
+    - MAGENTA_GLAZED_TERRACOTTA
+    - LIGHT_BLUE_GLAZED_TERRACOTTA
+    - YELLOW_GLAZED_TERRACOTTA
+    - LIME_GLAZED_TERRACOTTA
+    - PINK_GLAZED_TERRACOTTA
+    - GRAY_GLAZED_TERRACOTTA
+    - LIGHT_GRAY_GLAZED_TERRACOTTA
+    - CYAN_GLAZED_TERRACOTTA
+    - PURPLE_GLAZED_TERRACOTTA
+    - BLUE_GLAZED_TERRACOTTA
+    - BROWN_GLAZED_TERRACOTTA
+    - GREEN_GLAZED_TERRACOTTA
+    - RED_GLAZED_TERRACOTTA
+    - BLACK_GLAZED_TERRACOTTA

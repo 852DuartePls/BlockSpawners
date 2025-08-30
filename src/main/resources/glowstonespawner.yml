@@ -1,0 +1,18 @@
+glowstonespawner:
+  Material: GLOWSTONE
+  DisplayName: "<gold>◆</gold> <yellow>Glowstone Spawner</yellow> <gold>◆</gold>"
+  Lore:
+    - " "
+    - "<color:#ff5b19><b>||</b> This spawner generates</color>"
+    - "<color:#ff5b19>Glowstone blocks <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - GLOWSTONE

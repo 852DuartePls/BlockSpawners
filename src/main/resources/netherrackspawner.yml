@@ -1,0 +1,20 @@
+netherrackspawner:
+  Material: NETHERRACK
+  DisplayName: "<gradient:#C41111:#A22222>◆ Netherrack Spawner ◆</gradient>"
+  Lore:
+    - " "
+    - "<color:#ff1f26><b>||</b> This spawner generates</color>"
+    - "<color:#ff1f26>Netherrack, Warped Nylium, and Crimson Nylium blocks <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - NETHERRACK
+    - WARPED_NYLIUM
+    - CRIMSON_NYLIUM

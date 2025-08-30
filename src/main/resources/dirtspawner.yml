@@ -1,0 +1,20 @@
+dirtspawner:
+  Material: DIRT
+  DisplayName: "<color:#8f501d><yellow>◆</yellow> Dirt Spawner</color> <yellow>◆</yellow>"
+  Lore:
+    - " "
+    - "<color:#e36600><b>||</b> This spawner generates</color>"
+    - "<color:#e36600>Dirt, Coarse Dirt, and Rooted Dirt blocks <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - DIRT
+    - COARSE_DIRT
+    - ROOTED_DIRT

@@ -1,0 +1,32 @@
+terracottaspawner:
+  Material: WHITE_TERRACOTTA
+  DisplayName: "<color:#8769ff><color:#30c4ff>◆</color> Terracotta Spawner</color> <color:#30c4ff>◆</color>"
+  Lore:
+    - " "
+    - "<color:#e366ff><b>||</b> This spawner generates</color>"
+    - "<color:#e366ff>every single <gradient:#FF0000:#FF7F00:#FFFF00:#00FF00:#0000FF:#4B0082:#9400D3>Terracotta</gradient> color"
+  Enchantments:
+    unbreaking: 2
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+  SpawnTicks: 200
+  SpawningMaterials:
+    - TERRACOTTA
+    - WHITE_TERRACOTTA
+    - ORANGE_TERRACOTTA
+    - MAGENTA_TERRACOTTA
+    - LIGHT_BLUE_TERRACOTTA
+    - YELLOW_TERRACOTTA
+    - LIME_TERRACOTTA
+    - PINK_TERRACOTTA
+    - GRAY_TERRACOTTA
+    - LIGHT_GRAY_TERRACOTTA
+    - CYAN_TERRACOTTA
+    - PURPLE_TERRACOTTA
+    - BLUE_TERRACOTTA
+    - BROWN_TERRACOTTA
+    - GREEN_TERRACOTTA
+    - RED_TERRACOTTA
+    - BLACK_TERRACOTTA

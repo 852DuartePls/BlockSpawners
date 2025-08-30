@@ -1,0 +1,19 @@
+obsidianspawner:
+  Material: OBSIDIAN
+  DisplayName: "<color:#141414>◆</color> <dark_gray>Obsidian Spawner</dark_gray> <color:#141414>◆</color>"
+  Lore:
+    - " "
+    - "<color:#9354ff><b>||</b> This spawner generates</color>"
+    - "<color:#9354ff>Obsidian and Crying Obsidian blocks <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - OBSIDIAN
+    - CRYING_OBSIDIAN

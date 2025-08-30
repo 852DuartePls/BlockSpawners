@@ -1,0 +1,18 @@
+glassspawner:
+  Material: GLASS
+  DisplayName: "<color:#55ffff><blue>◆</blue> Glass Spawner</color> <blue>◆</blue>"
+  Lore:
+    - " "
+    - "<color:#6585ba><b>||</b> This spawner generates</color>"
+    - "<color:#6585ba>Glass blocks <b>||</b> </color>"
+  Enchantments:
+    unbreaking: 2
+
+  Unbreakable: true
+  Flags:
+    HideEnchantments: true
+    HideUnbreakable: true
+
+  SpawnTicks: 200
+  SpawningMaterials:
+    - GLASS
