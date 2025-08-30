@@ -5,14 +5,19 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class ParticleTasks extends BukkitRunnable {
 
+    // TODO: Make these configurable via yaml files
+    private static final Particle.DustOptions ORANGE = new Particle.DustOptions(Color.ORANGE, 1);
+    private static final Particle.DustOptions LIME   = new Particle.DustOptions(Color.LIME, 1);
+    private static final Particle.DustOptions AQUA   = new Particle.DustOptions(Color.AQUA, 1);
+    private static final Particle.DustOptions PURPLE = new Particle.DustOptions(Color.PURPLE, 1);
     private static final int TICKS_PER_SECOND = 60;
+
     private final Location location;
 
     public ParticleTasks(Location location) {
@@ -23,18 +28,15 @@ public class ParticleTasks extends BukkitRunnable {
     public void run() {
         World world = location.getWorld();
         if (world == null) return;
-        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5,
-                new Particle.DustOptions(Color.fromRGB(255, 140, 0), 1));
-        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5,
-                new Particle.DustOptions(Color.fromRGB(127, 255, 0), 1));
-        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5,
-                new Particle.DustOptions(Color.fromRGB(0, 191, 255), 1));
-        world.spawnParticle(Particle.DUST, location, 10, 0.5, 0.5, 0.5,
-                new Particle.DustOptions(Color.fromRGB(138, 43, 226), 1));
+        // TODO: Same thing, configurable amount and colors and toggleable
+        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, ORANGE);
+        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, LIME);
+        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, AQUA);
+        world.spawnParticle(Particle.DUST, location, 10, 0.3, 0.3, 0.3, PURPLE);
     }
 
     public void particleStart() {
-        runTaskTimer(JavaPlugin.getPlugin(BlockSpawners.class), 0, TICKS_PER_SECOND);
+        runTaskTimer(BlockSpawners.getPlugin(BlockSpawners.class), 0, TICKS_PER_SECOND);
     }
 
     public void particleStop() {
