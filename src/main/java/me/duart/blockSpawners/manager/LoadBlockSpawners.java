@@ -4,7 +4,6 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -30,8 +29,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static me.duart.blockSpawners.BlockSpawners.mini;
+
 public class LoadBlockSpawners {
-    private final MiniMessage mini = MiniMessage.miniMessage();
     private final JavaPlugin plugin;
     private final Map<String, ItemStack> items;
     private final File spawnersFolder;

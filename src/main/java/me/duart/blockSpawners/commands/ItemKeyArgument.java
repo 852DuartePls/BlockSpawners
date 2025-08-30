@@ -12,17 +12,17 @@ import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import me.duart.blockSpawners.manager.LoadBlockSpawners;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static me.duart.blockSpawners.BlockSpawners.mini;
+
 @SuppressWarnings("UnstableApiUsage")
 @NullMarked
 public class ItemKeyArgument implements CustomArgumentType.Converted<String, String> {
     private final LoadBlockSpawners loadSpawners;
-    private final MiniMessage mini = MiniMessage.miniMessage();
     private final Component ItemNotFound = mini.deserialize("<red>Item not found: ");
 
     public ItemKeyArgument(LoadBlockSpawners loadSpawners) {

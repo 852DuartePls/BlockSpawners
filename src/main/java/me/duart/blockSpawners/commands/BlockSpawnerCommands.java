@@ -7,7 +7,6 @@ import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.duart.blockSpawners.BlockSpawners;
 import me.duart.blockSpawners.manager.LoadBlockSpawners;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,7 +19,6 @@ import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public class BlockSpawnerCommands {
-    private final MiniMessage mini = MiniMessage.miniMessage();
     private final BlockSpawners plugin;
     private final LoadBlockSpawners loadBlockSpawners;
     private final String permission = "blockspawners.admin";
@@ -64,7 +62,7 @@ public class BlockSpawnerCommands {
                                                 if (sender instanceof Player) {
                                                     targetName = sender.getName();
                                                 } else {
-                                                    sender.sendMessage(mini.deserialize("<red>You must specify a target player when using this command from the console.</red>"));
+                                                    sender.sendRichMessage("<red>You must specify a target player when using this command from the console.</red>");
                                                     return 0;
                                                 }
 
@@ -88,38 +86,36 @@ public class BlockSpawnerCommands {
     }
 
     private void handleGive(CommandSender sender, String itemKey, String targetName) {
-        var announcerPrefixComponent = mini.deserialize(announcerPrefix);
         Player targetPlayer = targetName != null ? Bukkit.getPlayer(targetName) : null;
 
         if (targetPlayer == null && targetName != null) {
             String noPlayerFound = announcerPrefix + "<red> Player not found!</red>";
-            sender.sendMessage(mini.deserialize(noPlayerFound));
+            sender.sendRichMessage(noPlayerFound);
             return;
         }
 
         ItemStack item = loadBlockSpawners.getItem(itemKey);
         if (item == null) {
-            sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<red> Item not found: " + itemKey + "</red>")));
+            sender.sendRichMessage(announcerPrefix + "<red> Item not found: " + itemKey + "</red>");
             return;
         }
 
         if (targetPlayer == null) {
-            sender.sendMessage(mini.deserialize("<red>You must specify a target player when using this command from the console.</red>"));
+            sender.sendRichMessage("<red>You must specify a target player when using this command from the console.</red>");
             return;
         }
 
         targetPlayer.getInventory().addItem(item);
-        targetPlayer.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> You have been given:<color:#864aff> " + itemKey + "</color>")));
-        sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> Given<color:#864aff> " + itemKey + "</color> to " + targetPlayer.getName() + "</green>")));
+        targetPlayer.sendRichMessage(announcerPrefix + "<green> You have been given:<color:#864aff> " + itemKey + "</color>");
+        sender.sendRichMessage(announcerPrefix + "<green> Given<color:#864aff> " + itemKey + "</color> to " + targetPlayer.getName() + "</green>");
     }
 
     private void handleReload(@NotNull CommandSender sender) {
-        var announcerPrefixComponent = mini.deserialize(announcerPrefix);
-        sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> Reloading...</green>")));
+        sender.sendRichMessage(announcerPrefix + "<green> Reloading...</green>");
 
-        plugin.onReload().thenAccept(result -> sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<green> Reload completed successfully!</green>")))).exceptionally(ex -> {
+        plugin.onReload().thenAccept(result -> sender.sendRichMessage(announcerPrefix + "<green> Reload completed successfully!</green>")).exceptionally(ex -> {
             plugin.getLogger().severe("An error occurred during reload: " + ex.getMessage());
-            sender.sendMessage(announcerPrefixComponent.append(mini.deserialize("<red> Reload failed. Check console for details.</red>")));
+            sender.sendRichMessage(announcerPrefix + "<red> Reload failed. Check console for details.</red>");
             return null;
         });
     }

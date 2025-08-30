@@ -5,7 +5,6 @@ import me.duart.blockSpawners.manager.DataStorage;
 import me.duart.blockSpawners.manager.LoadBlockSpawners;
 import me.duart.blockSpawners.manager.SQLiteDataStorage;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -31,9 +30,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static me.duart.blockSpawners.BlockSpawners.mini;
+
 @NullMarked
 public class BlockSpawnerEvents implements Listener {
-    private final MiniMessage mini = MiniMessage.miniMessage();
     private final BlockSpawners plugin;
     private final LoadBlockSpawners loadBlockSpawners;
     private final Map<Location, ItemStack> placedSpawners = new ConcurrentHashMap<>();
